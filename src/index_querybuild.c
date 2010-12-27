@@ -375,6 +375,14 @@ unsigned int index_querybuild(struct index *idx, struct query *query,
                   &maxterms);
             } */
 
+            retval = get_vocab_vector(idx->vocab, &entry, word, wordlen,
+              vec_buf, sizeof(vec_buf), impacts);
+            if (retval < 0) {
+                return 0;
+            } 
+            current = conjunct_add(query, &entry, word, wordlen,
+                      CONJUNCT_TYPE_EXCLUDE, &maxterms);
+
             current = NULL;   /* this can't be the start of a conjunction */
             words++;
             break;
