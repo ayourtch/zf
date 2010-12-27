@@ -119,6 +119,7 @@ enum vocab_ret vocab_decode(struct vocab_vector *vocab, struct vec *v) {
                 return VOCAB_EOVERFLOW;
             }
         }
+        printf("AYXX: vocab->type: %d, size: %d\n", vocab->type, vocab->size);
 
         /* get specific header entries */
         switch (vocab->type) {

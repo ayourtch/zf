@@ -1713,6 +1713,7 @@ int index_commit_internal(struct index *idx,
       && stat_update(idx)
       && index_commit_superblock(idx)) {
         assert(idx->flags & INDEX_SORTED);
+        printf("AYXX: remerge done!\n");
 
         /* succeeded, clear accumulated postings */
         postings_clear(idx->post);

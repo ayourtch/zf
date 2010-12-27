@@ -39,6 +39,7 @@ static ssize_t outbuf(struct filep *out, char *buf, unsigned int len,
   struct fdset *fd) {
     unsigned int bufspace = out->bufsize - out->buflen;
     ssize_t ret;
+    printf("AYXX: outbuf %d bytes\n", len);
 
     assert(out->buflen <= out->bufsize);
     if (len >= bufspace) {
@@ -174,6 +175,8 @@ static unsigned int actual_remerge(struct index *idx, struct filep *in,
     enum btbulk_ret readret,
                     btret;
     int cmp;
+    unsigned long int tmp_len;
+    unsigned long int accumulated_len = 0;
     unsigned long int terms = 0;
     struct vocab_vector nve,
                         ve;
@@ -217,6 +220,7 @@ static unsigned int actual_remerge(struct index *idx, struct filep *in,
         nve.header.docwp.last = -1;
         nve.loc.file.fileno = out->fileno;
         nve.loc.file.offset = out->offset + out->buflen;
+        printf("AYXX: nve offset: nve.loc.file.offset = out->offset + out->buflen + accum, %d %d %d %ld\n", nve.loc.file.offset, out->offset, out->buflen, accumulated_len);
 
         if (cmp <= 0) {
             struct vec vv;
@@ -229,6 +233,8 @@ static unsigned int actual_remerge(struct index *idx, struct filep *in,
             vv.pos = (void *) old_vocab->output.ok.data;
             vv.end = vv.pos + old_vocab->output.ok.datalen;
             while ((vret = vocab_decode(&ve, &vv)) == VOCAB_OK) {
+                        printf("AYXX: just after decode : ve.loc.file.offset != in->offset + in->bufpos - in->buflen: %d != %d + %d - %d\n", ve.loc.file.offset, in->offset, in->bufpos, in->buflen);
+                        printf("AYXX: capacity: %d\n", ve.loc.file.capacity);
                 switch (ve.type) {
                 case VOCAB_VTYPE_DOC:
                 case VOCAB_VTYPE_DOCWP:
@@ -306,6 +312,11 @@ static unsigned int actual_remerge(struct index *idx, struct filep *in,
                     /* seek to correct in position */
                     assert(lseek(in->fd, 0, SEEK_CUR) 
                       == (ssize_t) in->offset);
+                    if (ve.loc.file.offset != in->offset + in->bufpos - in->buflen) {
+                        printf("AYXX: ve.loc.file.fileno : %d\n", ve.loc.file.fileno);
+                        printf("AYXX: about to assert: ve.loc.file.offset != in->offset + in->bufpos - in->buflen: %d != %d + %d - %d\n",
+                                        ve.loc.file.offset, in->offset, in->bufpos, in->buflen);
+                    }
                     assert(ve.loc.file.offset 
                       == in->offset + in->bufpos - in->buflen);
                     if (ve.loc.file.offset < in->offset - in->buflen
@@ -324,29 +335,36 @@ static unsigned int actual_remerge(struct index *idx, struct filep *in,
                     /* copy (possibly partially) buffered segment from input to
                      * output */
                     bytes = nve.size;
-                    if (ve.size && (ve.size >= (in->buflen - in->bufpos))) {
+                    tmp_len = ve.size;
+                    printf("AYXX: nve.size: %d, ve.size: %d\n", bytes, tmp_len);
+
+                    if (tmp_len && ((in->buflen - in->bufpos) > 0) && (tmp_len >= (in->buflen - in->bufpos))) {
+                        printf("AYXX: outbuf A1, tmp_len: %d, delta: %d\n", tmp_len, (in->buflen - in->bufpos));
                         if (outbuf(out, in->buf + in->bufpos, 
                             in->buflen - in->bufpos, fd)
                           == (ssize_t) (in->buflen - in->bufpos)) {
-                            ve.size -= in->buflen - in->bufpos;
+                            tmp_len -= in->buflen - in->bufpos;
                             in->buflen = in->bufpos = 0;
                         } else {
                             assert(!CRASH);
                             return 0;
                         }
                     }
+                    printf("AYXX: in.offset after A1: %d\n", in->offset);
 
                     /* copy full bufferloads from input to output */
-                    while (ve.size > in->bufsize) {
+                    while (tmp_len > in->bufsize) {
                         assert(in->buflen == 0);
                         assert(in->bufpos == 0);
+                        printf("AYXX: outbuf A2\n");
                         if (((in->buflen
                           = read(in->fd, in->buf, in->bufsize)) > 0)
                           && (outbuf(out, in->buf, in->buflen, fd)) 
                             == (ssize_t) in->buflen) {
 
-                            ve.size -= in->buflen;
+                            tmp_len -= in->buflen;
                             in->offset += in->buflen;
+                            in->buflen = in->bufpos = 0;
                             assert(lseek(in->fd, 0, SEEK_CUR) 
                               == (ssize_t) in->offset);
                         } else {
@@ -354,34 +372,41 @@ static unsigned int actual_remerge(struct index *idx, struct filep *in,
                             return 0;
                         }
                     }
-                    assert((ve.size < (in->buflen - in->bufpos)) 
+                    assert((tmp_len < (in->buflen - in->bufpos)) 
                       || !in->buflen);
+                    printf("AYXX: in.offset after A2: %d\n", in->offset);
 
                     /* read in last bufferload if necessary */
-                    if (ve.size && !in->buflen 
+                    if (tmp_len && !in->buflen 
                       && (bytes = read(in->fd, in->buf, in->bufsize)) 
                           != -1) {
 
                         in->buflen = bytes;
+                        printf("AYXX: in.offset before add: %d, in->buflen: %d\n", in->offset, in->buflen);
                         in->offset += in->buflen;
+                        if (lseek(in->fd, 0, SEEK_CUR) != (ssize_t) in->offset) {
+                          printf("AYXX: about to assert2: in pos: %d, in->offset: %d, bytes: %d, in->buflen: %d, tmp_len: %d\n", (int)lseek(in->fd, 0, SEEK_CUR), in->offset, bytes, in->buflen, tmp_len);
+                        }
                         assert(lseek(in->fd, 0, SEEK_CUR) 
                           == (ssize_t) in->offset);
-                    } else if (ve.size && !in->buflen) {
+                    } else if (tmp_len && !in->buflen) {
                         assert(!CRASH);
                         return 0;
                     }
 
                     /* copy last buffered segment from input to output */
-                    assert(ve.size <= (in->buflen - in->bufpos));
-                    if (ve.size 
-                      && (outbuf(out, in->buf + in->bufpos, ve.size, fd) 
-                        == (ssize_t) ve.size)) {
-
-                        in->bufpos += ve.size;
-                    } else if (ve.size) {
+                    assert(tmp_len <= (in->buflen - in->bufpos));
+                    printf("AYXX: outbuf A3\n");
+                    if (tmp_len 
+                      && (outbuf(out, in->buf + in->bufpos, tmp_len, fd) 
+                        == (ssize_t) tmp_len)) {
+                        in->bufpos += tmp_len;
+                    } else if (tmp_len) {
                         assert(!CRASH);
                         return 0;
                     }
+                    //printf("AYXX: ve.size: %d\n", ve.size);
+                    printf("AYXX: in.offset after A3: %d\n", in->offset);
                     break;
 
                 case VOCAB_VTYPE_IMPACT:
@@ -459,6 +484,7 @@ static unsigned int actual_remerge(struct index *idx, struct filep *in,
 
             /* write in-memory vector to output */
             bytes = vec_len(&front);
+            printf("AYXX: encoding and outbuf: %d\n", bytes);
             if (outbuf(out, front.pos, bytes, fd) == (ssize_t) bytes) {
                 /* do nothing */
             } else {
@@ -664,7 +690,8 @@ int index_remerge(struct index *idx, unsigned int opts,
         }
     } else {
         /* default is for 5 pages per buffer */
-        bufsize = 5 * 4 * idx->storage.pagesize;
+        // AYXXBROKEN: the logic of using the buffer multiple times is broken!!!!!
+        bufsize = 2 * 4 * idx->storage.pagesize;
     }
 
     vin.type = idx->vocab_type;
@@ -709,6 +736,8 @@ int index_remerge(struct index *idx, unsigned int opts,
 
         /* sort postings lexographically by term and perform merge */
         qsort(posting, postings, sizeof(*posting), post_cmp);
+        printf("AYXX: calling remerge : in->offset + in->bufpos - in->buflen: %%d + %d - %d\n",
+                                        in.offset, in.bufpos, in.buflen);
         idx->vectors
           = actual_remerge(idx, &in, &vin, &old_vocab, &out, &vout, &new_vocab,
             idx->fd, posting, postings, &terms, &root_fileno, &root_offset);
