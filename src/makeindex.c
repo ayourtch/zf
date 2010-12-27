@@ -472,7 +472,7 @@ on_middle:
             /* got a regular word, add it to the postings */
             assert(termlen <= mi->state->maxtermlen);
             mi->state->term[termlen] = '\0';
-            fprintf(stderr, "AYXX: posting term: '%s'\n", mi->state->term);
+            //fprintf(stderr, "AYXX: posting term: '%s'\n", mi->state->term);
             if (postings_addword(mi->post, mi->state->term, 
               mi->state->termno++)) {
                 if (ret & MLPARSE_END) {
