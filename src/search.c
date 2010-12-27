@@ -946,6 +946,9 @@ enum search_ret doc_ord_eval(struct index *idx, struct query *query,
      * in OR mode */
     for (i = 0; (i < query->terms) 
         && (results->accs + query->term[i].f_t < results->acc_limit); i++) {
+        if (srcarr[i].term->type == CONJUNCT_TYPE_EXCLUDE) { 
+            continue;
+        }
 
         /* reserve enough accumulators for the entire list */
         if (objalloc_reserve(results->alloc, query->term[i].f_t) 
@@ -982,6 +985,9 @@ enum search_ret doc_ord_eval(struct index *idx, struct query *query,
     printf("AYXX: searching in THRESH mode\n");
     ret = SEARCH_OK;
     for (; (i < query->terms) && (ret == SEARCH_OK); i++) {
+        if (srcarr[i].term->type == CONJUNCT_TYPE_EXCLUDE) { 
+            continue;
+        }
         /* don't perform thresholding for a small number of 
          * accumulators... */
         if ((((results->acc_limit - results->accs) / (float) results->acc_limit)
@@ -1022,6 +1028,9 @@ enum search_ret doc_ord_eval(struct index *idx, struct query *query,
     printf("AYXX: searching in AND mode\n");
     for (; i < query->terms; i++) {
         assert(srcarr[i].term == &query->term[i] || !srcarr[i].term);
+        if (srcarr[i].term->type == CONJUNCT_TYPE_EXCLUDE) { 
+            continue;
+        }
         if (((src = srcarr[i].src) 
             || (src 
               = search_conjunct_src(idx, &query->term[i], &alloc, 
