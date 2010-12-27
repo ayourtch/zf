@@ -1,0 +1,29 @@
+This contains various notes...
+
+enum makeindex_ret makeindex(struct makeindex *mi)
+
+this builds the index for the doc.
+
+makeindex_set_docno
+
+
+--- search
+CONJUNCT_TYPE_WORD
+CONJUNCT_TYPE_EXCLUDE
+
+index_querybuild - construct a query structure
+
+
+/* internal function to evaluate a query structure using document ordered
+ * inverted lists and place the results into an accumulator linked list */
+enum search_ret doc_ord_eval(struct index *idx, struct query *query,
+
+index_search - the function that performs search
+
+index_heap_select - select the top results
+
+struct search_acc_cons *acc
+struct chash *hashacc 
+
+accumulators
+with acc->acc.docno having document number
