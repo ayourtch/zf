@@ -857,7 +857,7 @@ enum search_ret doc_ord_eval(struct index *idx, struct query *query,
     if (!srcarr) {
         return SEARCH_ENOMEM;
     }
-    printf("AYXX: doc_ord_eval\n");
+    fprintf(stderr, "AYXX: doc_ord_eval\n");
 
     alloc.opaque = list_alloc;
 
@@ -903,11 +903,11 @@ enum search_ret doc_ord_eval(struct index *idx, struct query *query,
                 break;
             }
             memsum += query->term[small].term.vocab.size;
-            printf("AYXX: vocabsize[%d]: %d, memsum: %d\n", small, query->term[small].term.vocab.size, memsum);
+            fprintf(stderr, "AYXX: vocabsize[%d]: %d, memsum: %d\n", small, query->term[small].term.vocab.size, memsum);
         }
     }
 
-    printf("AYXX: fit in memory: %d, total: %d\n", small, query->terms);
+    fprintf(stderr, "AYXX: fit in memory: %d, total: %d\n", small, query->terms);
 
     /* initialise the rest of the sources to NULL */
     for (i = small; i < query->terms; i++) {
@@ -983,7 +983,7 @@ enum search_ret doc_ord_eval(struct index *idx, struct query *query,
       || (results->accs + query->term[i].f_t >= results->acc_limit));
 
     /* process terms that may overflow the accumulator limit in THRESH mode */
-    printf("AYXX: searching in THRESH mode\n");
+    fprintf(stderr, "AYXX: searching in THRESH mode\n");
     ret = SEARCH_OK;
     for (; (i < query->terms) && (ret == SEARCH_OK); i++) {
         if (srcarr[i].term->type == CONJUNCT_TYPE_EXCLUDE) { 
@@ -1026,7 +1026,7 @@ enum search_ret doc_ord_eval(struct index *idx, struct query *query,
     }
 
     /* process terms after accumulator limit has been reached in AND mode */
-    printf("AYXX: searching in AND mode\n");
+    fprintf(stderr, "AYXX: searching in AND mode\n");
     for (; i < query->terms; i++) {
         assert(srcarr[i].term == &query->term[i] || !srcarr[i].term);
         if (srcarr[i].term->type == CONJUNCT_TYPE_EXCLUDE) { 
@@ -1054,10 +1054,10 @@ enum search_ret doc_ord_eval(struct index *idx, struct query *query,
             }
         }
     }
-    printf("AYXX: remaining...\n");
+    fprintf(stderr, "AYXX: remaining...\n");
     for (i=0; i < query->terms; i++) {
         assert(srcarr[i].term == &query->term[i] || !srcarr[i].term);
-        printf("AYXX: srcarr[i].term->type: %d\n", srcarr[i].term->type); // == CONJUNCT_TYPE_
+        fprintf(stderr, "AYXX: srcarr[i].term->type: %d\n", srcarr[i].term->type); // == CONJUNCT_TYPE_
     }
     free(srcarr);
 

@@ -1705,7 +1705,7 @@ enum docmap_ret docmap_save(struct docmap *dm) {
     int fd;
     TIMINGS_DECL();
     TIMINGS_START();
-    printf("AYXX: docmap save: rset->entries: %d\n", dm->rset->entries);
+    fprintf(stderr, "AYXX: docmap save: rset->entries: %d\n", dm->rset->entries);
 
     if ((!dm->readbuf.dirty 
         || (dmret = commit(dm, &dm->readbuf)) == DOCMAP_OK)
@@ -2343,7 +2343,7 @@ struct docmap *docmap_load(struct fdset *fdset,
     }
     dm->map[dm->map_len] = ULONG_MAX;
     TIMINGS_END("docmap fastload");
-    printf("AYXX: docmap load: rset->entries: %d\n", dm->rset->entries);
+    fprintf(stderr, "AYXX: docmap load: rset->entries: %d\n", dm->rset->entries);
 
     /* if anything goes wrong, docmap_cache_int() at the end */
     if (corrupt || !map || cache != dm->cache.cache) {
