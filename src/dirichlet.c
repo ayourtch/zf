@@ -298,19 +298,26 @@ static enum search_ret and_decode(struct index *idx, struct query *query,
              * population co-occurrance rate (assuming unbiased sampling) 
              * and then number of results from unrestricted evaluation */
             assert(results->total_results >= results->accs);
-            cooc_rate 
-              *= (float) results->total_results / (float) results->accs; 
-            assert(cooc_rate >= 0.0);
-            if (cooc_rate > 1.0) {
-                cooc_rate = 1.0;
-            }
+            /*
+             * If we were excluding, subtract the results.
+             */
+            if (term_is_exclude_type) {
+                results->total_results -= hit;
+            } else {
+                cooc_rate 
+                    *= (float) results->total_results / (float) results->accs; 
+                assert(cooc_rate >= 0.0);
+                if (cooc_rate > 1.0) {
+                    cooc_rate = 1.0;
+                }
 
-            /* add number of things we think would have been added from the
-             * things that were missed */
-            results->total_results += (1 - cooc_rate) * missed;
+                /* add number of things we think would have been added from the
+                 * things that were missed */
+                results->total_results += (1 - cooc_rate) * missed;
 
-            if (missed) {
-                results->estimated |= 1;
+                if (missed) {
+                   results->estimated |= 1;
+                }
             }
 
             if (!VEC_LEN(&v)) {
