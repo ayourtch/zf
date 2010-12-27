@@ -17,7 +17,7 @@
 #ifndef CRASH
 #define CRASH 1
 #endif
-
+#define NDEBUG
 /* whether to perform expensive debugging checks (define to 0 to turn off) */
 #ifdef NDEBUG
 #define DEAR_DEBUG 0
