@@ -1294,7 +1294,7 @@ int index_search(struct index *idx, const char *querystr,
         results.alloc = acc_alloc;
         ret = doc_ord_eval(idx, &query, list_alloc.opaque, mem, &results, 
             opts, opt);
-        fprintf(stderr, "return from doc_ord_eval: %d\n", ret);
+        fprintf(stderr, "return from doc_ord_eval: %d, accs: %d\n", ret, results.accs);
         accs = results.accs;
         acc = results.acc;
         *total_results = results.total_results; 
