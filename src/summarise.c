@@ -462,7 +462,9 @@ static struct sentence *extract(struct summarise *sum, struct persum *ps,
             /* strip and stem the term */
             ps->termbuf[len] = '\0';
             str_strip(ps->termbuf);
-            sum->stem(sum->stemmer, ps->termbuf);
+            if (sum->stem) {
+              sum->stem(sum->stemmer, ps->termbuf);
+            }
 
             if (chash_str_ptr_find(ps->terms, ps->termbuf, &found) 
               == CHASH_OK) {
