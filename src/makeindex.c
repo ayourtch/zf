@@ -443,6 +443,9 @@ start_label:
         default:
             /* indicate to the postings that the document has started */
             postings_adddoc(mi->post, mi->docs++);
+            // AYXX: add a test term..
+            if (postings_addword(mi->post, "TESTING123", mi->state->termno++)) {
+            } 
             /* complete hack, transfer to on state and complete processing */
             goto on_middle;
 
@@ -469,6 +472,7 @@ on_middle:
             /* got a regular word, add it to the postings */
             assert(termlen <= mi->state->maxtermlen);
             mi->state->term[termlen] = '\0';
+            printf("AYXX: posting term: '%s'\n", mi->state->term);
             if (postings_addword(mi->post, mi->state->term, 
               mi->state->termno++)) {
                 if (ret & MLPARSE_END) {
