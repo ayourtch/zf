@@ -380,6 +380,19 @@ unsigned int index_querybuild(struct index *idx, struct query *query,
             if (retval < 0) {
                 return 0;
             } 
+            /* look up word in vocab */
+            /* FIXME: word needs to be looked up in in-memory postings as 
+             * well */
+            if (retval == 0 && stem) {
+                word[wordlen] = '\0';
+                stem(idx->stem, word);
+                wordlen = str_len(word);
+                retval = get_vocab_vector(idx->vocab, &entry, word, wordlen,
+                    vec_buf, sizeof(vec_buf), impacts);
+                if (retval < 0) {
+                    return 0;
+                } 
+            }
             if (retval > 0) {
               current = conjunct_add(query, &entry, word, wordlen,
                       CONJUNCT_TYPE_EXCLUDE, &maxterms);
