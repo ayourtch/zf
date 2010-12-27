@@ -380,11 +380,13 @@ unsigned int index_querybuild(struct index *idx, struct query *query,
             if (retval < 0) {
                 return 0;
             } 
-            current = conjunct_add(query, &entry, word, wordlen,
+            if (retval > 0) {
+              current = conjunct_add(query, &entry, word, wordlen,
                       CONJUNCT_TYPE_EXCLUDE, &maxterms);
 
-            current = NULL;   /* this can't be the start of a conjunction */
-            words++;
+              current = NULL;   /* this can't be the start of a conjunction */
+              words++;
+            }
             break;
 
         case QUERYPARSE_WORD_NOSTOP:
