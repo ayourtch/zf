@@ -313,6 +313,7 @@ struct reposset_record *reposset_record(struct reposset *rset,
 
 enum reposset_ret reposset_set_record(struct reposset *rset, 
   struct reposset_record *rec) {
+    // unsigned int max = rec->reposno + 1;
     unsigned int max = rec->reposno + 1;
     printf("AYXX: before reposset_set_record: rset->entries: %d. max: %d\n", rset->entries, max);
 
@@ -339,8 +340,8 @@ enum reposset_ret reposset_set_record(struct reposset *rset,
 
     /* update entries */
     if (rec->rectype == REPOSSET_MANY_FILES) {
-        //AYXX ? max += rec->quantity;
-        max = rec->quantity;
+        max += rec->quantity;
+        // max = rec->quantity;
         printf("AYXX: many files, adding quantity: %d\n", rec->quantity);
     }
     if (max > rset->entries) {
