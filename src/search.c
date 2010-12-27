@@ -903,6 +903,7 @@ enum search_ret doc_ord_eval(struct index *idx, struct query *query,
                 break;
             }
             memsum += query->term[small].term.vocab.size;
+            printf("AYXX: vocabsize[%d]: %d, memsum: %d\n", small, query->term[small].term.vocab.size, memsum);
         }
     }
 
