@@ -1059,7 +1059,32 @@ enum search_ret doc_ord_eval(struct index *idx, struct query *query,
     fprintf(stderr, "AYXX: remaining...\n");
     for (i=0; i < query->terms; i++) {
         assert(srcarr[i].term == &query->term[i] || !srcarr[i].term);
-        fprintf(stderr, "AYXX: srcarr[i].term->type: %d\n", srcarr[i].term->type); // == CONJUNCT_TYPE_
+        if (srcarr[i].term->type != CONJUNCT_TYPE_EXCLUDE) { 
+            fprintf(stderr, "AYXX: normal term: %s\n", srcarr[i].term->term.term);
+            continue;
+        }
+        fprintf(stderr, "AYXX: exclude term: %s\n", srcarr[i].term->term.term);
+        if (((src = srcarr[i].src) 
+            || (src 
+              = search_conjunct_src(idx, &query->term[i], &alloc, 
+                  list_mem_limit)))
+          && (ret = sm->and_decode(idx, query, i, SEARCH_DOCNO_START, results,
+            src, opts, opt)) 
+          == SEARCH_OK) {
+            src->delet(src);
+            if (list_alloc) {
+                poolalloc_clear(list_alloc);
+            }
+        } else {
+            if (src) {
+                src->delet(src);
+                free(srcarr);
+                return ret;
+            } else {
+                free(srcarr);
+                return SEARCH_ENOMEM;
+            }
+        }
     }
     free(srcarr);
 
