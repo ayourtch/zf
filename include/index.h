@@ -15,8 +15,8 @@ extern "C" {
 /* FIXME instead of these fixed-length buffers, there should be an
    index_results structure that holds the individual results and a pool
    of memory used for these string fields. */
-#define INDEX_SUMMARYLEN 350        /* Maximum size of document summary */
-#define INDEX_TITLELEN 50           /* Maximum size of document title */
+#define INDEX_SUMMARYLEN 1024        /* Maximum size of document summary */
+#define INDEX_TITLELEN 150           /* Maximum size of document title */
 #define INDEX_AUXILIARYLEN 150      /* Maximum size of auxiliary fields */
 
 enum index_summary_type {
