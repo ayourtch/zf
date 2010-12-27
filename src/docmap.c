@@ -136,6 +136,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include "reposset.h"
 
 /* frequency of front-coding of trecno's.  For example, a value of 4 sets a
  * policy of 3-in-4 front coding, where only every fourth entry is not
@@ -801,14 +802,22 @@ enum docmap_ret docmap_add(struct docmap *dm,
     entry.trecno = (char *) trecno;
     entry.trecno_size = entry.trecno_len = trecno_len;
 
+    //printf("AYXX: fileno: %d\n", fileno);
+    //reposset_print(dm->rset, stdout);
+    //printf("AYXX: before add dm->rset->entries: %d\n", dm->rset->entries);
+
     /* fiddle reposset in response to new docno */
     assert(!entry.docno 
       || reposset_reposno(dm->rset, entry.docno - 1, &reposno) == REPOSSET_OK);
     if (!offset) {
         unsigned int reposno;
+        //printf("AYXX: entry.docno: %d\n", entry.docno);
 
         if ((rret = reposset_append(dm->rset, entry.docno, &reposno)) 
           == REPOSSET_OK) {
+            //printf("AYXX: rret: %d, reposno: %d, dm->entries: %d\n", rret, reposno, dm->entries);
+            //reposset_print(dm->rset, stdout);
+
             assert(reposno == entry.fileno);
         } else {
             assert(!CRASH);
@@ -1696,6 +1705,7 @@ enum docmap_ret docmap_save(struct docmap *dm) {
     int fd;
     TIMINGS_DECL();
     TIMINGS_START();
+    printf("AYXX: docmap save: rset->entries: %d\n", dm->rset->entries);
 
     if ((!dm->readbuf.dirty 
         || (dmret = commit(dm, &dm->readbuf)) == DOCMAP_OK)
@@ -2333,6 +2343,7 @@ struct docmap *docmap_load(struct fdset *fdset,
     }
     dm->map[dm->map_len] = ULONG_MAX;
     TIMINGS_END("docmap fastload");
+    printf("AYXX: docmap load: rset->entries: %d\n", dm->rset->entries);
 
     /* if anything goes wrong, docmap_cache_int() at the end */
     if (corrupt || !map || cache != dm->cache.cache) {

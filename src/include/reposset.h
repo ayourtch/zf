@@ -26,7 +26,20 @@ enum reposset_ret {
                                    * error) */
 };
 
-struct reposset;
+#define AYXX_REPOSSET_EXPOSE
+// struct reposset;
+struct reposset {
+    unsigned int entries;              /* number of repositories in set */
+
+    struct reposset_record *rec;       /* sorted array of records */
+    unsigned int rec_size;             /* size of records array */
+    unsigned int rec_len;              /* number of records currently in rec */
+
+    struct reposset_check *check;      /* sorted array of checkpoints */
+    unsigned int check_size;           /* size of checkpoint array */
+    unsigned int check_len;            /* entries currently in check */
+};
+
 
 struct reposset *reposset_new();
 void reposset_delete(struct reposset *rset);

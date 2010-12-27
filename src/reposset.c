@@ -25,17 +25,7 @@
 
 #define INIT_ARRAY_SIZE 4
 
-struct reposset {
-    unsigned int entries;              /* number of repositories in set */
-
-    struct reposset_record *rec;       /* sorted array of records */
-    unsigned int rec_size;             /* size of records array */
-    unsigned int rec_len;              /* number of records currently in rec */
-
-    struct reposset_check *check;      /* sorted array of checkpoints */
-    unsigned int check_size;           /* size of checkpoint array */
-    unsigned int check_len;            /* entries currently in check */
-};
+#include "reposset.h"
 
 static int check_cmp(const void *vone, const void *vtwo) {
     const struct reposset_check *one = vone,
@@ -138,6 +128,7 @@ void reposset_delete(struct reposset *rset) {
 
 enum reposset_ret reposset_append(struct reposset *rset, 
   unsigned int start_docno, unsigned int *reposno) {
+    printf("AYXX: reposset_append: rset->entries: %d\n", rset->entries);
     if (rset->entries 
       && rset->rec[rset->rec_len - 1].rectype == REPOSSET_MANY_FILES
       && rset->rec[rset->rec_len - 1].docno 
@@ -324,6 +315,7 @@ struct reposset_record *reposset_record(struct reposset *rset,
 enum reposset_ret reposset_set_record(struct reposset *rset, 
   struct reposset_record *rec) {
     unsigned int max = rec->reposno + 1;
+    printf("AYXX: before reposset_set_record: rset->entries: %d. max: %d\n", rset->entries, max);
 
     /* XXX: again, can't be bothered actively sorting entries here,
      * ensure that they come sorted */
@@ -348,13 +340,16 @@ enum reposset_ret reposset_set_record(struct reposset *rset,
 
     /* update entries */
     if (rec->rectype == REPOSSET_MANY_FILES) {
-        max += rec->quantity;
+        //AYXX ? max += rec->quantity;
+        max = rec->quantity;
+        printf("AYXX: many files, adding quantity: %d\n", rec->quantity);
     }
     if (max > rset->entries) {
         rset->entries = max;
     }
 
     rset->rec[rset->rec_len++] = *rec;
+    printf("AYXX: reposset_set_record: rset->entries: %d\n", rset->entries);
     return REPOSSET_OK;
 }
 
