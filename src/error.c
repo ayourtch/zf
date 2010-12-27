@@ -17,11 +17,7 @@ static int error_code = 0;
 
 static void ensure_error_stream_inited() {
     if (error_stream_inited == 0) {
-#ifdef LOGERRORS
         error_stream = stderr;
-#else /* LOGERRORS */
-        error_stream = NULL;
-#endif /* LOGERRORS */
         error_stream_inited = 1;
     }
 }
