@@ -1188,7 +1188,7 @@ int index_search(struct index *idx, const char *querystr,
             break;
 
         case CONJUNCT_TYPE_EXCLUDE:
-            mem = 0; //query.term[i].term.vocab.size;
+            mem = query.term[i].term.vocab.size;
             break;
 
         default:
