@@ -128,7 +128,6 @@ void reposset_delete(struct reposset *rset) {
 
 enum reposset_ret reposset_append(struct reposset *rset, 
   unsigned int start_docno, unsigned int *reposno) {
-    printf("AYXX: reposset_append: rset->entries: %d\n", rset->entries);
     if (rset->entries 
       && rset->rec[rset->rec_len - 1].rectype == REPOSSET_MANY_FILES
       && rset->rec[rset->rec_len - 1].docno 
