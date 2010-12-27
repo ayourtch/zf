@@ -22,6 +22,10 @@ static void ensure_error_stream_inited() {
     }
 }
 
+void set_zet_error_stream(FILE *stream) {
+    error_stream = stream;
+}
+
 int error_loc(int code, const char * func, const char * file, int line,
   const char * fmt, ...) {
     va_list ap;

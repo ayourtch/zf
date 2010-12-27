@@ -936,6 +936,8 @@ enum search_ret doc_ord_eval(struct index *idx, struct query *query,
           && (srcarr[i].term->term.vocab.location == VOCAB_LOCATION_FILE)) {
             /* failed to allocate or read new source */
             free(srcarr);
+            fprintf(stderr, "AYXX: failed to alloc or read new source\n");
+            
             return SEARCH_ENOMEM;
         }
     }
@@ -1292,6 +1294,7 @@ int index_search(struct index *idx, const char *querystr,
         results.alloc = acc_alloc;
         ret = doc_ord_eval(idx, &query, list_alloc.opaque, mem, &results, 
             opts, opt);
+        fprintf(stderr, "return from doc_ord_eval: %d\n", ret);
         accs = results.accs;
         acc = results.acc;
         *total_results = results.total_results; 
