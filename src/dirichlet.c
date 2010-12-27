@@ -212,6 +212,11 @@ static enum search_ret and_decode(struct index *idx, struct query *query,
   struct search_metric_results *results, struct search_list_src *src,
   int opts, struct index_search_opt *opt) {
     struct search_acc_cons *acc = results->acc;
+    struct search_acc_cons **prevptr = &results->acc,
+                        *acc_save = NULL,
+                        *acc_prev = results->acc;
+    char term_is_exclude_type /* Different processing for "exclude" and normal */
+             = (query->term[qterm].type == CONJUNCT_TYPE_EXCLUDE);              
     unsigned long int f_dt,        /* number of offsets for this document */
                       docno_d;     /* d-gap */
     struct vec v = {NULL, NULL};
@@ -240,17 +245,34 @@ static enum search_ret and_decode(struct index *idx, struct query *query,
 
             /* merge into accumulator list */
             while (acc && (docno > acc->acc.docno)) {
+                acc_prev = acc;
                 acc = acc->next;
             }
 
             if (acc && (docno == acc->acc.docno)) {
                 /* METRIC_PER_DOC */
-                (acc->acc.weight) += (float) logf(1 + f_dt * w_t);
-
-
-                /* go to next accumulator */
-                acc = acc->next;
-                hit++;
+                if (term_is_exclude_type) {
+                    /*
+                    * #include <stdio.h> in this file had caused a weird crash... 
+                    * so don't do it.
+                    * fprintf(stderr, "DIRICHLET: removed accumulator!\n");
+                    */
+                    acc_save = acc->next;
+                    if (*prevptr == acc) {
+                        *prevptr = acc_save;
+                    } else {
+                        acc_prev->next = acc_save;
+                    }
+                    objalloc_free(results->alloc, acc);
+                    results->accs--;
+                    acc = acc_save;
+                    hit++;
+                } else {
+                    (acc->acc.weight) += (float) logf(1 + f_dt * w_t);
+                    /* go to next accumulator */
+                    acc = acc->next;
+                    hit++;
+                }
             } else {
                 missed++;
             }
