@@ -178,7 +178,7 @@ static struct sentence *extract_finish(struct sentence *sent, struct persum *ps,
     }
 
     /* remove superfluous whitespace from the end of the sentence */
-    while (sent->buf[sent->buflen - 1] == ' ') {
+    while ((sent->buflen > 0) && (sent->buf[sent->buflen - 1] == ' ')) {
         sent->buflen--;
     }
 
@@ -903,8 +903,8 @@ enum summarise_ret summarise(struct summarise *sum, unsigned long int docno,
             if (i) {
                 if (heap[i - 1]->start_term + heap[i - 1]->terms 
                   != heap[i]->start_term) { 
-                    if (result->summary[heap_bytes - 1] != '.'
-                      || !isupper(heap[i]->buf[0])) {
+                    if (heap_bytes && (result->summary[heap_bytes - 1] != '.'
+                      || !isupper(heap[i]->buf[0]))) {
                         result->summary[heap_bytes++] = ' ';
                         result->summary[heap_bytes++] = '.';
                     }
