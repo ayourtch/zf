@@ -172,7 +172,7 @@ static struct sentence *extract_finish(struct sentence *sent, struct persum *ps,
     /* trim overly-long sentence term-by-term */
     while (sent->buflen > ps->summary_len) {
         sent->buflen--;
-        while (sent->buf[sent->buflen - 1] != ' ') {
+        while ((sent->buflen > 0) && sent->buf[sent->buflen - 1] != ' ') {
             sent->buflen--;
         }
     }
