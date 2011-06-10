@@ -1,0 +1,8 @@
+#!/bin/sh
+export LD_LIBRARY_PATH=../.libs
+IDX=tmp/testindex
+rm -f tmp
+mkdir tmp
+../zet -i -c ../config/psettings.xml -t HTML -f $IDX data/issue1.html 
+echo wanita | ../zet -n 10 -f $IDX --summary=capitalize
+
