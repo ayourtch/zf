@@ -465,6 +465,11 @@ static struct sentence *extract(struct summarise *sum, struct persum *ps,
                 memcpy(sent->buf + sent->buflen, ps->termbuf, len);
             }
 
+            if (len > sum->max_termlen) {
+                /* Term was too long to fit into the termbuf, empty it. */
+                len = 0;
+            }
+
             /* strip and stem the term */
             ps->termbuf[len] = '\0';
             str_strip(ps->termbuf);
