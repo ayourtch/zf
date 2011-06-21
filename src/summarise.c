@@ -268,6 +268,7 @@ static struct sentence *extract(struct summarise *sum, struct persum *ps,
     struct conjunct *conj;      /* current query term, in query struct */
     enum mlparse_ret ret; 
     enum psettings_attr attr;
+    char sepch;
 
     /* note that because we potentially realloc sent, we *must* return it if we
      * modify it or else risk leaking memory */
@@ -307,6 +308,10 @@ static struct sentence *extract(struct summarise *sum, struct persum *ps,
             ps->termbuf[len] = '\0';
             str_strip(ps->termbuf + (ps->termbuf[0] == '/'));
             attr = psettings_type_find(sum->pset, ps->ptype, ps->termbuf);
+	    if (title) {
+		assert(ps->title_len > 0);
+		ps->title[ps->title_len-1] = '\0';
+	    }
             title = 0;
 
             /* change state based on tag index attribute */
@@ -417,18 +422,19 @@ static struct sentence *extract(struct summarise *sum, struct persum *ps,
         case MLPARSE_WORD | MLPARSE_CONT:
         case MLPARSE_WORD | MLPARSE_END:
             if (title) {
+		sepch = ((ret & MLPARSE_END) || (ret & MLPARSE_CONT))? 0 : ' ';
                 /* copy into title buffer, don't generate a sentence from it */
                 if (ps->title_len + len + 2 < ps->title_size) {
                     memcpy(ps->title + ps->title_len, ps->termbuf, len);
                     ps->title_len += len;
-                    ps->title[ps->title_len++] = ' ';
+                    ps->title[ps->title_len++] = sepch;
                 } else if (ps->title_len + 1 < ps->title_size) {
                     unsigned int tlen = ps->title_size - ps->title_len - 1;
                     memcpy(ps->title + ps->title_len, ps->termbuf, tlen);
                     ps->title_len += tlen;
                     assert(ps->title_len + 1 <= ps->title_size);
                     if (ps->title_len + 1 < ps->title_size) {
-                        ps->title[ps->title_len++] = ' ';
+                        ps->title[ps->title_len++] = sepch;
                     }
                     assert(ps->title_len + 1 == ps->title_size);
                 }
