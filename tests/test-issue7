@@ -5,4 +5,5 @@ rm -rf tmp
 mkdir tmp
 ../zet -i -c ../config/psettings.xml -t HTML -f $IDX data/seputar-hukum-islam.html 
 gdb -x gdb-run --args ../.libs/zet -n 10 -f $IDX --summary=capitalise pendidikan
+gdb -x gdb-run --args ../.libs/zet -n 10 -f $IDX --summary=capitalise menyebutkan
 
