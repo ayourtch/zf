@@ -4,5 +4,5 @@ IDX=tmp/testindex
 rm -rf tmp
 mkdir tmp
 ../zet -i -c ../config/psettings.xml -t HTML -f $IDX data/en_bing.html
-valgrind ../.libs/zet -n 10 -f $IDX --summary=tag microsoft
+gdb -x gdb-run --args ../.libs/zet -n 10 -f $IDX --summary=tag microsoft
 
