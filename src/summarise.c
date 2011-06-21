@@ -162,11 +162,11 @@ static struct sentence *extract_finish(struct sentence *sent, struct persum *ps,
               && (space < str_len("</b>"))) {
                 sent->buflen--;
             }
-
-            /* end highlighting */
-            str_cpy(sent->buf + sent->buflen, "</b>");
-            sent->buflen += str_len("</b>");
         }
+
+        /* end highlighting */
+        str_cpy(sent->buf + sent->buflen, "</b>");
+        sent->buflen += str_len("</b>");
     }
 
     /* trim overly-long sentence term-by-term */
