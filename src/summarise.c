@@ -308,10 +308,10 @@ static struct sentence *extract(struct summarise *sum, struct persum *ps,
             ps->termbuf[len] = '\0';
             str_strip(ps->termbuf + (ps->termbuf[0] == '/'));
             attr = psettings_type_find(sum->pset, ps->ptype, ps->termbuf);
-	    if (title) {
-		assert(ps->title_len > 0);
-		ps->title[ps->title_len-1] = '\0';
-	    }
+            if (title) {
+                assert(ps->title_len > 0);
+                ps->title[ps->title_len-1] = '\0';
+            }
             title = 0;
 
             /* change state based on tag index attribute */
@@ -422,7 +422,7 @@ static struct sentence *extract(struct summarise *sum, struct persum *ps,
         case MLPARSE_WORD | MLPARSE_CONT:
         case MLPARSE_WORD | MLPARSE_END:
             if (title) {
-		sepch = ((ret & MLPARSE_END) || (ret & MLPARSE_CONT))? 0 : ' ';
+                sepch = ((ret & MLPARSE_END) || (ret & MLPARSE_CONT))? 0 : ' ';
                 /* copy into title buffer, don't generate a sentence from it */
                 if (ps->title_len + len + 2 < ps->title_size) {
                     memcpy(ps->title + ps->title_len, ps->termbuf, len);
