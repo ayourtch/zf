@@ -4,5 +4,5 @@ IDX=tmp/testindex
 rm -rf tmp
 mkdir tmp
 ../zet -i -c ../config/psettings.xml -t HTML -f $IDX data/Che_Guevara data/Che_Guevara_Mausoleum data/Che_Guevara_in_popular_culture data/Guevarism 
-gdb -x gdb-run --args ../.libs/zet -n 10 -f $IDX --summary=tag guevara
+valgrind ../.libs/zet -n 10 -f $IDX --summary=tag guevara
 
